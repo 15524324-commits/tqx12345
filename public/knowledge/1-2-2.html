@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>解决问题：进一法 · 数学小工坊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: #f0f9ff;
+            font-family: 'Comic Neue', 'Segoe UI Emoji', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .course-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 60px;
+            box-shadow: 0 20px 50px rgba(0, 50, 100, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .split-layout {
+            display: flex;
+            flex-wrap: wrap;
+            height: 100%;
+        }
+
+        /* 左侧知识区 */
+        .knowledge-area {
+            flex: 1;
+            background: #f0fdf4; /* 浅绿 */
+            padding: 40px;
+            border-right: 1px solid #dcfce7;
+        }
+
+        /* 右侧游戏区 */
+        .game-area {
+            flex: 1.5;
+            background: #f8fafc;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 900px) {
+            .split-layout { flex-direction: column; }
+            .knowledge-area, .game-area { padding: 25px; }
+        }
+
+        /* 标题样式 */
+        .badge-title {
+            background: #bbf7d0;
+            color: #166534;
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .section-box {
+            background: white;
+            border-radius: 30px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid #f1f5f9;
+        }
+
+        .highlight-text {
+            color: #059669;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .formula-box {
+            background: #ecfdf5;
+            border: 2px dashed #10b981;
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 15px 0;
+            color: #047857;
+        }
+
+        /* 游戏样式 */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .score-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        .scenario-box {
+            background: #eff6ff;
+            border-radius: 30px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #bfdbfe;
+            text-align: center;
+            position: relative;
+        }
+
+        .animal-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            min-height: 80px;
+        }
+
+        .animal-icon {
+            font-size: 2rem;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .interaction-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .ans-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .ans-btn {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 24px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .ans-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-4px);
+        }
+
+        .ans-btn.correct {
+            background: #22c55e;
+            border-color: #16a34a;
+            color: white;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .ans-btn.wrong {
+            background: #ef4444;
+            border-color: #dc2626;
+            color: white;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .feedback-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            display: none;
+            z-index: 100;
+            border: 4px solid #bbf7d0;
+        }
+
+        .reset-btn {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover { background: #0f172a; }
+
+        .hint-text {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="course-wrapper">
+    <div class="split-layout">
+        <!-- 左侧：知识点讲解 -->
+        <div class="knowledge-area">
+            <div class="badge-title">🚢 解决问题：进一法</div>
+            
+            <div class="section-box">
+                <p>在现实生活中，当我们平均分东西时，剩下的余数往往也需要<b>多准备一个</b>容器或位置。</p>
+                <p style="margin-top:10px;">例如：<span class="highlight-text">“至少需要多少条船？”</span></p>
+            </div>
+
+            <div class="section-box">
+                <p>🌰 <strong>栗子：</strong></p>
+                <p>22个小朋友去划船，每条船坐4人，至少要租多少条船？</p>
+                <div class="formula-box">
+                    22 ÷ 4 = 5 (条) …… 2 (人)
+                </div>
+                <p>剩下的2人也要坐船，所以要多租1条：</p>
+                <p class="highlight-text" style="text-align:center; font-size:1.4rem;">5 + 1 = 6 (条)</p>
+            </div>
+
+            <div class="section-box" style="background:#fff7ed; border-color:#ffedd5;">
+                <p>💡 <strong>关键词：</strong></p>
+                <p>“至少”、“还要”、“才能装完”</p>
+                <p style="font-size:0.9rem; color:#9a3412; margin-top:5px;">只要有余数，商就要加1。</p>
+            </div>
+        </div>
+
+        <!-- 右侧：互动小游戏 -->
+        <div class="game-area">
+            <div class="game-header">
+                <div class="game-title">🚣‍♂️ 小船接送员</div>
+                <div class="score-badge">已完成 <span id="currentRound">1</span> / 3</div>
+            </div>
+
+            <div class="scenario-box">
+                <h3 id="questionText">loading...</h3>
+                <div class="animal-container" id="animalIcons"></div>
+                <p class="hint-text">💡 提示：算一算，除完后剩下的伙伴也需要一条船哦！</p>
+            </div>
+
+            <div class="interaction-panel">
+                <p style="font-weight:bold; color:#475569;">请选择需要的小船数量：</p>
+                <div class="ans-options" id="ansOptions">
+                    <!-- 动态生成按钮 -->
+                </div>
+            </div>
+
+            <footer style="text-align:center; color:#94a3b8; font-size:0.8rem; margin-top:20px;">
+                数学小道理：余下的也是一份，我们要公平对待每一个余数！
+            </footer>
+        </div>
+    </div>
+</div>
+
+<div class="feedback-overlay" id="feedbackOverlay">
+    <h1 id="feedbackEmoji" style="font-size:4rem;">🎉</h1>
+    <h2 id="feedbackTitle" style="margin:20px 0; color:#166534;">太棒了！</h2>
+    <p id="feedbackDesc" style="color:#4b5563; line-height:1.6;"></p>
+    <button class="reset-btn" id="nextBtn">继续下一关</button>
+</div>
+
+<script>
+    const scenarios = [
+        {
+            total: 13,
+            per: 4,
+            animals: '🐶',
+            text: '有 13 只小狗要坐船，每条船限坐 4 只。',
+            correct: 4, // 13/4 = 3...1 -> 4
+            formula: '13 ÷ 4 = 3 (条) …… 1 (只)<br>3 + 1 = 4 (条)'
+        },
+        {
+            total: 18,
+            per: 5,
+            animals: '🐱',
+            text: '有 18 只小猫要搬运箱子，每次搬 5 个箱子。',
+            correct: 4, // 18/5 = 3...3 -> 4
+            formula: '18 ÷ 5 = 3 (次) …… 3 (个)<br>3 + 1 = 4 (次)'
+        },
+        {
+            total: 25,
+            per: 8,
+            animals: '🐰',
+            text: '有 25 只小兔要过河，每只船最多载 8 只。',
+            correct: 4, // 25/8 = 3...1 -> 4
+            formula: '25 ÷ 8 = 3 (条) …… 1 (只)<br>3 + 1 = 4 (条)'
+        }
+    ];
+
+    let currentLevel = 0;
+    const roundSpan = document.getElementById('currentRound');
+    const questionText = document.getElementById('questionText');
+    const animalIcons = document.getElementById('animalIcons');
+    const ansOptions = document.getElementById('ansOptions');
+    const feedbackOverlay = document.getElementById('feedbackOverlay');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function initLevel() {
+        const scenario = scenarios[currentLevel];
+        roundSpan.innerText = currentLevel + 1;
+        questionText.innerText = scenario.text + ' 至少需要多少次？';
+        
+        // 生成动物图标
+        animalIcons.innerHTML = '';
+        for(let i=0; i<Math.min(scenario.total, 30); i++) {
+            const span = document.createElement('span');
+            span.className = 'animal-icon';
+            span.innerText = scenario.animals;
+            animalIcons.appendChild(span);
+        }
+
+        // 生成答案选项
+        ansOptions.innerHTML = '';
+        const options = generateOptions(scenario.correct);
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'ans-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt, btn);
+            ansOptions.appendChild(btn);
+        });
+    }
+
+    function generateOptions(correct) {
+        const opts = new Set([correct]);
+        while(opts.size < 4) {
+            let fake = Math.max(1, correct + Math.floor(Math.random() * 5) - 2);
+            opts.add(fake);
+        }
+        return Array.from(opts).sort((a,b) => a - b);
+    }
+
+    function checkAnswer(val, btn) {
+        const scenario = scenarios[currentLevel];
+        if(val === scenario.correct) {
+            btn.classList.add('correct');
+            showFeedback(true);
+        } else {
+            btn.classList.add('wrong');
+            setTimeout(() => btn.classList.remove('wrong'), 500);
+        }
+    }
+
+    function showFeedback(isCorrect) {
+        if(isCorrect) {
+            const scenario = scenarios[currentLevel];
+            document.getElementById('feedbackDesc').innerHTML = `
+                <div style="font-size:1.2rem; margin-bottom:10px;"><b>正确答案是 ${scenario.correct}</b></div>
+                <div style="background:#f0fdf4; padding:15px; border-radius:15px;">
+                    ${scenario.formula}
+                </div>
+                <p style="margin-top:10px;">剩下的伙伴不能留在岸上，所以我们要多准备一个！</p>
+            `;
+            
+            if(currentLevel === scenarios.length - 1) {
+                document.getElementById('feedbackTitle').innerText = '全通关啦！';
+                nextBtn.innerText = '重玩一局';
+            } else {
+                document.getElementById('feedbackTitle').innerText = '真聪明！';
+                nextBtn.innerText = '下一关';
+            }
+            
+            feedbackOverlay.style.display = 'block';
+        }
+    }
+
+    nextBtn.onclick = () => {
+        feedbackOverlay.style.display = 'none';
+        if(currentLevel === scenarios.length - 1) {
+            currentLevel = 0;
+        } else {
+            currentLevel++;
+        }
+        initLevel();
+    };
+
+    initLevel();
+
+    // 防止意外的页面行为
+    window.addEventListener('dragstart', (e) => e.preventDefault());
+    document.body.addEventListener('touchmove', function(e) {
+        // 允许自然滚动但防止橡皮糖效果
+    }, { passive: true });
+</script>
+
+</body>
+</html>

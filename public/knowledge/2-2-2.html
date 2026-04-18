@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>乘除关系解决问题 · 小小生活家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 避免拖拽时选中文字 */
+        }
+
+        body {
+            background: #eef7f0;
+            font-family: 'Comic Neue', 'Segoe UI Emoji', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 主容器 */
+        .course-container {
+            max-width: 1300px;
+            width: 100%;
+            background: #fffef7;
+            border-radius: 70px;
+            box-shadow: 0 25px 40px rgba(70, 50, 20, 0.12);
+            overflow: hidden;
+        }
+
+        /* 左右布局 */
+        .split-layout {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* 左侧知识点区 */
+        .knowledge-area {
+            flex: 1.2;
+            background: #fff7ec;
+            border-radius: 56px;
+            margin: 20px 12px 20px 22px;
+            padding: 28px 22px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.03);
+        }
+
+        /* 右侧游戏区 */
+        .game-area {
+            flex: 2;
+            background: #feffee;
+            border-radius: 56px;
+            margin: 20px 22px 20px 12px;
+            padding: 24px 20px;
+            border: 2px solid #ffdfaa;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+        }
+
+        @media (max-width: 780px) {
+            .split-layout {
+                flex-direction: column;
+            }
+            .knowledge-area, .game-area {
+                margin: 16px;
+            }
+        }
+
+        /* ========= 知识点样式 ========= */
+        .badge {
+            background: #ffddb0;
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #b45a2b;
+            margin-bottom: 24px;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 40px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 12px #f2e3cf;
+        }
+
+        .formula-card {
+            background: #feebcc;
+            padding: 14px;
+            border-radius: 32px;
+            margin: 16px 0;
+        }
+
+        .example-box {
+            background: #fff3e0;
+            border-radius: 30px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .tip {
+            background: #e3f2db;
+            border-radius: 32px;
+            padding: 14px;
+            margin-top: 16px;
+            text-align: center;
+            color: #3a732a;
+            font-weight: bold;
+        }
+
+        /* ========= 游戏区样式 ========= */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 3px dotted #ffd09c;
+        }
+        .game-title {
+            background: #ffdab3;
+            border-radius: 48px;
+            padding: 5px 24px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #b95f2a;
+        }
+        .score-board {
+            background: #f9efcf;
+            border-radius: 48px;
+            padding: 6px 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #a5632e;
+        }
+        .global-msg {
+            background: #fff7e0;
+            border-radius: 32px;
+            padding: 12px;
+            text-align: center;
+            margin: 10px 0 20px;
+            font-weight: bold;
+            color: #d87c2c;
+        }
+
+        /* 游戏主体：钓鱼池风格，左边是问题卡片池，右边是算式鱼篓 */
+        .game-play-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .problems-pool {
+            flex: 1.2;
+            background: #fef5e6;
+            border-radius: 48px;
+            padding: 18px;
+            box-shadow: inset 0 0 0 2px #ffe3bc, 0 6px 12px rgba(0,0,0,0.02);
+        }
+        .problems-pool h3, .formulas-pool h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #c5793b;
+            text-align: center;
+        }
+        .cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .drag-card {
+            background: #ffe5c4;
+            border-radius: 36px;
+            padding: 14px 18px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #794f26;
+            box-shadow: 0 6px 0 #c1915e;
+            cursor: grab;
+            touch-action: none;
+            transition: 0.05s linear;
+            text-align: center;
+        }
+        .drag-card:active {
+            cursor: grabbing;
+        }
+        .drag-card.disabled-card {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            display: none;
+        }
+
+        .formulas-pool {
+            flex: 1;
+            background: #fef5e6;
+            border-radius: 48px;
+            padding: 18px;
+            box-shadow: inset 0 0 0 2px #ffe3bc, 0 6px 12px rgba(0,0,0,0.02);
+        }
+        .drop-zone {
+            background: #fff3e6;
+            border: 3px dashed #f5a96b;
+            border-radius: 36px;
+            padding: 14px 18px;
+            margin-bottom: 14px;
+            text-align: center;
+            transition: 0.1s;
+        }
+        .drop-zone.filled {
+            background: #d4e6c3;
+            border: 3px solid #79a33b;
+            cursor: default;
+        }
+        .zone-label {
+            font-weight: bold;
+            color: #b45a2b;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        .zone-equation {
+            font-size: 1.3rem;
+            font-family: monospace;
+            font-weight: bold;
+            color: #a5551c;
+        }
+        .drop-zone.drag-over {
+            background: #ffe1b3;
+            transform: scale(0.98);
+        }
+
+        .reset-btn {
+            background: #ffcf91;
+            border: none;
+            font-size: 1.2rem;
+            padding: 10px 28px;
+            border-radius: 48px;
+            font-weight: bold;
+            color: #6b3f15;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .reset-btn:active {
+            transform: scale(0.96);
+        }
+        .feedback {
+            margin-top: 14px;
+            font-size: 1rem;
+            min-height: 48px;
+            font-weight: bold;
+            text-align: center;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #c0a072;
+            margin-top: 18px;
+        }
+    </style>
+</head>
+<body>
+<div class="course-container">
+    <div class="split-layout">
+        <!-- 左侧知识点区 -->
+        <div class="knowledge-area">
+            <div class="badge">🧮 乘除关系解决问题</div>
+            <div class="concept-card">
+                <div style="font-size:1.3rem; font-weight:bold;">📖 生活中的乘除法</div>
+                <div class="formula-card">
+                    ✨ 单价 × 数量 = 总价<br>
+                    ✨ 总价 ÷ 单价 = 数量<br>
+                    ✨ 总价 ÷ 数量 = 单价<br>
+                    ✨ 倍数关系：几倍量 = 标准量 × 倍数
+                </div>
+                <div class="example-box">
+                    🌰 例子1：一个文具盒8元，买4个需要多少钱？<br>
+                    ➕ 8 × 4 = 32（元）<br><br>
+                    🌰 例子2：32元买4个同样的文具盒，每个多少钱？<br>
+                    ➕ 32 ÷ 4 = 8（元）<br><br>
+                    🌰 例子3：有6只小鸡，小鸭的数量是小鸡的3倍，小鸭几只？<br>
+                    ➕ 6 × 3 = 18（只）
+                </div>
+                <div class="tip">
+                    💡 小秘诀：<br>
+                    求总数用乘法，平均分用除法，<br>
+                    倍数问题看清楚，乘除关系分得清！
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧游戏区：拖拽配对（问题 → 算式） -->
+        <div class="game-area">
+            <div class="game-header">
+                <div class="game-title">🎣 钓鱼小行家 · 拖拽配对</div>
+                <div class="score-board">🏆 得分 <span id="scoreValue">0</span> / <span id="totalCount">4</span></div>
+            </div>
+            <div class="global-msg" id="globalMsg">
+                🌟 把左边的“问题鱼”拖到右边正确的“算式鱼篓”里！
+            </div>
+
+            <!-- 左右游戏区：问题卡片池 vs 算式放置区 -->
+            <div class="game-play-area">
+                <!-- 左边：待配对的问题卡片 -->
+                <div class="problems-pool">
+                    <h3>🐟 问题小鱼 (拖拽我)</h3>
+                    <div id="problemsContainer" class="cards-list"></div>
+                </div>
+
+                <!-- 右边：算式放置区 -->
+                <div class="formulas-pool">
+                    <h3>🧺 算式鱼篓 (放这里)</h3>
+                    <div id="dropZonesContainer" class="cards-list"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center;">
+                <button id="resetGameBtn" class="reset-btn">🔄 新的一局 / 重置</button>
+            </div>
+            <div id="feedbackMsg" class="feedback">✨ 按住问题卡片，拖到右边对应的算式框里～</div>
+            <footer>⭐ 先读问题，想清楚用乘法还是除法，再配对！</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----- 配对数据：问题卡片 与 对应的算式 (每个问题匹配一个唯一算式)
+    const pairData = [
+        {
+            id: 0,
+            problem: "一支钢笔 7 元，买 5 支需要多少钱？",
+            correctEquation: "7 × 5 = 35 (元)",
+            equationSimplified: "7×5=35",
+            resultHint: "乘法求总价"
+        },
+        {
+            id: 1,
+            problem: "有 24 颗糖果，平均分给 6 个小朋友，每人几颗？",
+            correctEquation: "24 ÷ 6 = 4 (颗)",
+            equationSimplified: "24÷6=4",
+            resultHint: "除法求每份数"
+        },
+        {
+            id: 2,
+            problem: "一盒牛奶 3 元，30 元可以买几盒？",
+            correctEquation: "30 ÷ 3 = 10 (盒)",
+            equationSimplified: "30÷3=10",
+            resultHint: "除法求数量"
+        },
+        {
+            id: 3,
+            problem: "小丽有 5 张贴纸，小明的贴纸数是小丽的 4 倍，小明有多少张贴纸？",
+            correctEquation: "5 × 4 = 20 (张)",
+            equationSimplified: "5×4=20",
+            resultHint: "乘法求倍数"
+        }
+    ];
+    const TOTAL_PAIRS = pairData.length;
+    document.getElementById('totalCount').innerText = TOTAL_PAIRS;
+
+    // 游戏状态
+    let correctCount = 0;
+    let pairedStatus = new Array(TOTAL_PAIRS).fill(false);  // 每个问题是否已正确配对
+    let problemCardsDom = [];      // 存储问题卡片DOM元素
+    let dropZonesDom = [];         // 存储放置区DOM元素
+
+    // 拖拽相关变量
+    let activeDragCard = null;
+    let cloneCard = null;
+    let startX = 0, startY = 0;
+    let isDragging = false;
+    let dragProblemId = -1;
+
+    // DOM 元素
+    const problemsContainer = document.getElementById('problemsContainer');
+    const dropZonesContainer = document.getElementById('dropZonesContainer');
+    const scoreSpan = document.getElementById('scoreValue');
+    const globalMsgDiv = document.getElementById('globalMsg');
+    const feedbackDiv = document.getElementById('feedbackMsg');
+    const resetBtn = document.getElementById('resetGameBtn');
+
+    // 更新得分UI
+    function updateScoreUI() {
+        scoreSpan.innerText = correctCount;
+        if (correctCount === TOTAL_PAIRS) {
+            globalMsgDiv.innerHTML = "🎉🎉 钓鱼大师！全对啦！你完全掌握了乘除关系解决问题 🎉🎉";
+            globalMsgDiv.style.background = "#cae3b5";
+        } else {
+            globalMsgDiv.innerHTML = "🌟 把左边的“问题鱼”拖到右边正确的“算式鱼篓”里！";
+            globalMsgDiv.style.background = "#fff7e0";
+        }
+    }
+
+    // 显示反馈消息
+    function showFeedback(msg, isError = false) {
+        feedbackDiv.innerHTML = msg;
+        feedbackDiv.style.color = isError ? "#d9534f" : "#3c8b2f";
+        setTimeout(() => {
+            if (feedbackDiv.innerHTML === msg) {
+                feedbackDiv.innerHTML = "✨ 按住问题卡片，拖到右边对应的算式框里～ ✨";
+                feedbackDiv.style.color = "#ad6b38";
+            }
+        }, 1500);
+    }
+
+    // 正确配对
+    function pairSuccess(problemId, zoneId) {
+        if (pairedStatus[problemId]) return false;
+        if (problemId !== zoneId) return false;  // 确保配对id一致
+        pairedStatus[problemId] = true;
+        correctCount++;
+        updateScoreUI();
+
+        // 禁用问题卡片 (隐藏)
+        const card = problemCardsDom[problemId];
+        if (card) {
+            card.classList.add('disabled-card');
+            card.style.pointerEvents = 'none';
+            card.removeEventListener('pointerdown', onPointerDown);
+        }
+        // 放置区变为已填充样式，不可再放
+        const zone = dropZonesDom[zoneId];
+        if (zone) {
+            zone.classList.add('filled');
+            zone.classList.remove('drop-zone');
+            zone.style.border = "3px solid #79a33b";
+            zone.style.background = "#d4e6c3";
+            // 内部文字加个完成标记
+            const checkSpan = document.createElement('span');
+            checkSpan.innerText = " ✓";
+            checkSpan.style.fontSize = "1.2rem";
+            checkSpan.style.fontWeight = "bold";
+            zone.querySelector('.zone-equation').appendChild(checkSpan);
+        }
+        showFeedback(`✅ 正确！ “${pairData[problemId].problem}” 对应算式 ${pairData[problemId].correctEquation}`, false);
+        return true;
+    }
+
+    // 渲染问题卡片 (可拖拽)
+    function renderProblems() {
+        problemsContainer.innerHTML = '';
+        problemCardsDom = [];
+        // 随机打乱问题顺序，增加挑战性
+        const shuffledProblems = [...pairData];
+        for (let i = shuffledProblems.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledProblems[i], shuffledProblems[j]] = [shuffledProblems[j], shuffledProblems[i]];
+        }
+        shuffledProblems.forEach((item, idx) => {
+            const originalId = item.id;
+            const card = document.createElement('div');
+            card.className = 'drag-card';
+            card.innerText = item.problem;
+            card.setAttribute('data-problem-id', originalId);
+            card.setAttribute('draggable', 'false');
+            card.addEventListener('pointerdown', onPointerDown);
+            problemsContainer.appendChild(card);
+            problemCardsDom[originalId] = card;  // 按原id存储
+        });
+    }
+
+    // 渲染放置区 (算式鱼篓)
+    function renderDropZones() {
+        dropZonesContainer.innerHTML = '';
+        dropZonesDom = [];
+        // 按顺序显示算式区 (不打乱，便于查找)
+        for (let i = 0; i < pairData.length; i++) {
+            const item = pairData[i];
+            const zone = document.createElement('div');
+            zone.className = 'drop-zone';
+            zone.setAttribute('data-zone-id', item.id);
+            zone.setAttribute('data-expected-id', item.id);
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'zone-label';
+            labelDiv.innerText = `算式 ${i+1}`;
+            const eqDiv = document.createElement('div');
+            eqDiv.className = 'zone-equation';
+            eqDiv.innerText = item.correctEquation;
+            zone.appendChild(labelDiv);
+            zone.appendChild(eqDiv);
+            if (pairedStatus[item.id]) {
+                zone.classList.add('filled');
+                zone.classList.remove('drop-zone');
+                zone.style.border = "3px solid #79a33b";
+                zone.style.background = "#d4e6c3";
+                const checkSpan = document.createElement('span');
+                checkSpan.innerText = " ✓";
+                checkSpan.style.fontSize = "1.2rem";
+                eqDiv.appendChild(checkSpan);
+            }
+            dropZonesContainer.appendChild(zone);
+            dropZonesDom[item.id] = zone;
+        }
+    }
+
+    // ---------- 自定义拖拽逻辑 (支持触摸/鼠标) ----------
+    function onPointerDown(e) {
+        const card = e.currentTarget;
+        if (card.classList.contains('disabled-card')) return;
+        e.preventDefault();
+        activeDragCard = card;
+        dragProblemId = parseInt(card.getAttribute('data-problem-id'));
+
+        const rect = card.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+
+        // 克隆跟随体
+        cloneCard = card.cloneNode(true);
+        cloneCard.style.position = 'fixed';
+        cloneCard.style.top = `${rect.top}px`;
+        cloneCard.style.left = `${rect.left}px`;
+        cloneCard.style.width = `${rect.width}px`;
+        cloneCard.style.height = `${rect.height}px`;
+        cloneCard.style.margin = '0';
+        cloneCard.style.opacity = '0.85';
+        cloneCard.style.zIndex = '9999';
+        cloneCard.style.pointerEvents = 'none';
+        cloneCard.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
+        document.body.appendChild(cloneCard);
+
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+        isDragging = true;
+        activeDragCard.style.opacity = '0.3';
+    }
+
+    function onPointerMove(e) {
+        if (!isDragging || !cloneCard) return;
+        e.preventDefault();
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const currentTop = parseFloat(cloneCard.style.top);
+        const currentLeft = parseFloat(cloneCard.style.left);
+        cloneCard.style.top = `${currentTop + dy}px`;
+        cloneCard.style.left = `${currentLeft + dx}px`;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        // 高亮放置区
+        const elemUnder = document.elementsFromPoint(e.clientX, e.clientY);
+        let hoverZone = null;
+        for (let el of elemUnder) {
+            if (el.classList && el.classList.contains('drop-zone') && !el.classList.contains('filled')) {
+                hoverZone = el;
+                break;
+            }
+            if (el.parentElement && el.parentElement.classList && el.parentElement.classList.contains('drop-zone') && !el.parentElement.classList.contains('filled')) {
+                hoverZone = el.parentElement;
+                break;
+            }
+        }
+        dropZonesDom.forEach(zone => {
+            if (zone) zone.classList.remove('drag-over');
+        });
+        if (hoverZone) {
+            hoverZone.classList.add('drag-over');
+        }
+    }
+
+    function onPointerUp(e) {
+        if (!isDragging) {
+            cleanDrag();
+            return;
+        }
+        e.preventDefault();
+        const elementsUnder = document.elementsFromPoint(e.clientX, e.clientY);
+        let targetZone = null;
+        for (let el of elementsUnder) {
+            if (el.classList && el.classList.contains('drop-zone') && !el.classList.contains('filled')) {
+                targetZone = el;
+                break;
+            }
+            if (el.parentElement && el.parentElement.classList && el.parentElement.classList.contains('drop-zone') && !el.parentElement.classList.contains('filled')) {
+                targetZone = el.parentElement;
+                break;
+            }
+        }
+
+        let success = false;
+        if (targetZone) {
+            const zoneId = parseInt(targetZone.getAttribute('data-zone-id'));
+            if (!isNaN(zoneId) && !pairedStatus[zoneId]) {
+                if (dragProblemId === zoneId) {
+                    success = pairSuccess(dragProblemId, zoneId);
+                } else {
+                    showFeedback(`❌ 不对哦！ “${pairData[dragProblemId]?.problem}” 应该配对的算式是 ${pairData[dragProblemId]?.correctEquation}，再试试看～`, true);
+                }
+            } else if (pairedStatus[zoneId]) {
+                showFeedback("🎯 这个算式已经被配对过了！不能重复放～", true);
+            } else {
+                showFeedback("🤔 出错了，请刷新重试", true);
+            }
+        } else {
+            showFeedback("🐣 要把问题卡片拖到右边算式区域（鱼篓）里！", true);
+        }
+
+        cleanDrag();
+        if (!success && activeDragCard && !activeDragCard.classList.contains('disabled-card')) {
+            activeDragCard.style.opacity = '1';
+        }
+        dropZonesDom.forEach(zone => {
+            if (zone) zone.classList.remove('drag-over');
+        });
+    }
+
+    function cleanDrag() {
+        if (cloneCard && cloneCard.parentNode) cloneCard.parentNode.removeChild(cloneCard);
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        isDragging = false;
+        cloneCard = null;
+        if (activeDragCard && !activeDragCard.classList.contains('disabled-card')) {
+            activeDragCard.style.opacity = '1';
+        }
+        activeDragCard = null;
+        dragProblemId = -1;
+    }
+
+    // 重置游戏
+    function resetGame() {
+        correctCount = 0;
+        pairedStatus.fill(false);
+        updateScoreUI();
+        if (cloneCard) cleanDrag();
+        // 重新渲染问题卡片和放置区
+        renderProblems();
+        renderDropZones();
+        showFeedback("✨ 游戏已重置！重新挑战配对 ✨", false);
+        globalMsgDiv.innerHTML = "🌟 把左边的“问题鱼”拖到右边正确的“算式鱼篓”里！";
+        globalMsgDiv.style.background = "#fff7e0";
+    }
+
+    // 初始化
+    function init() {
+        renderProblems();
+        renderDropZones();
+        correctCount = 0;
+        pairedStatus.fill(false);
+        updateScoreUI();
+    }
+
+    // 防止移动端滚动干扰拖拽
+    document.body.addEventListener('touchmove', function(e) {
+        if (isDragging) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    window.addEventListener('dragstart', (e) => e.preventDefault());
+
+    resetBtn.addEventListener('click', () => {
+        if (isDragging) cleanDrag();
+        resetGame();
+    });
+
+    init();
+</script>
+</body>
+</html>

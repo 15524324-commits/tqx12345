@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root { --primary: #9c27b0; --secondary: #f3e5f5; --text: #2d3436; }
+        body { font-family: 'PingFang SC', sans-serif; padding: 30px; color: var(--text); background: #fff; }
+        .table-container { width: 100%; border-collapse: collapse; margin-top: 30px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        th, td { border: 1px solid #e0e0e0; padding: 15px; text-align: center; }
+        th { background: var(--secondary); color: var(--primary); font-weight: bold; }
+        .unit-name { background: #fafafa; font-size: 14px; color: #636e72; }
+        .place-name { font-size: 18px; font-weight: bold; }
+        .highlight { color: #e91e63; }
+        .tip { background: #fffde7; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px dashed #fbc02d; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h2 style="color: var(--primary)">3.2.2 万以内数的数位顺序表</h2>
+    <p>数位顺序表是我们读数、写数的好帮手！从右边起：</p>
+
+    <table class="table-container">
+        <tr>
+            <th>...</th>
+            <th>万位</th>
+            <th>千位</th>
+            <th>百位</th>
+            <th>十位</th>
+            <th>个位</th>
+        </tr>
+        <tr class="unit-name">
+            <td>...</td>
+            <td>第五位</td>
+            <td>第四位</td>
+            <td>第三位</td>
+            <td>第二位</td>
+            <td>第一位</td>
+        </tr>
+        <tr>
+            <td colspan="6" style="padding: 20px; font-size: 15px;">
+                例如：数字 <span class="highlight">2458</span><br>
+                由 <span class="highlight">2</span> 个千、<span class="highlight">4</span> 个百、<span class="highlight">5</span> 个十和 <span class="highlight">8</span> 个一组成。
+            </td>
+        </tr>
+    </table>
+
+    <div class="tip">
+        <strong>记忆小口诀：</strong><br>
+        个、十、百、千、万，五个兄弟排排坐，<br>
+        右边起，第一位是个位，千万记牢别出错！
+    </div>
+
+    <img src="https://picsum.photos/seed/abacus/600/200?grayscale" alt="abacus" style="width: 100%; border-radius: 12px; margin-top: 20px; opacity: 0.6;">
+</body>
+</html>

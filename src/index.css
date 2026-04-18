@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Helvetica Neue', Arial, 'PingFang SC', sans-serif;
+  
+  --color-primary-green: #4caf50;
+  --color-primary-blue: #2196f3;
+  --color-bg-light: #f7fafc;
+  --color-bg-green-soft: #e8f5e9;
+  --color-bg-blue-soft: #e3f2fd;
+  --color-text-main: #2d3436;
+  --color-text-muted: #636e72;
+  
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+@layer base {
+  body {
+    @apply bg-bg-light text-text-main antialiased;
+  }
+}

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>求一个数是另一个数的几倍 · 倍数特工队</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 避免拖拽时选中文字 */
+        }
+
+        body {
+            background: #f0f9f0;
+            font-family: 'Comic Neue', 'Segoe UI Emoji', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 主容器 */
+        .course-container {
+            max-width: 1300px;
+            width: 100%;
+            background: #fffef7;
+            border-radius: 70px;
+            box-shadow: 0 25px 40px rgba(70, 50, 20, 0.12);
+            overflow: hidden;
+        }
+
+        /* 左右布局 */
+        .split-layout {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* 左侧知识点区 */
+        .knowledge-area {
+            flex: 1.2;
+            background: #fff7ec;
+            border-radius: 56px;
+            margin: 20px 12px 20px 22px;
+            padding: 28px 22px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.03);
+        }
+
+        /* 右侧游戏区 */
+        .game-area {
+            flex: 2;
+            background: #feffee;
+            border-radius: 56px;
+            margin: 20px 22px 20px 12px;
+            padding: 24px 20px;
+            border: 2px solid #ffdfaa;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+        }
+
+        @media (max-width: 780px) {
+            .split-layout {
+                flex-direction: column;
+            }
+            .knowledge-area, .game-area {
+                margin: 16px;
+            }
+        }
+
+        /* ========= 知识点样式 ========= */
+        .badge {
+            background: #ffddb0;
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #b45a2b;
+            margin-bottom: 24px;
+        }
+
+        .rule-card {
+            background: white;
+            border-radius: 40px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 12px #f2e3cf;
+        }
+
+        .formula {
+            background: #feebcc;
+            padding: 16px;
+            border-radius: 32px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d9792b;
+            margin: 16px 0;
+            font-family: monospace;
+        }
+
+        .example-box {
+            background: #fff3e0;
+            border-radius: 30px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .tip {
+            background: #e3f2db;
+            border-radius: 32px;
+            padding: 14px;
+            margin-top: 16px;
+            text-align: center;
+            color: #3a732a;
+            font-weight: bold;
+        }
+
+        /* ========= 游戏区样式 ========= */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 3px dotted #ffd09c;
+        }
+        .game-title {
+            background: #ffdab3;
+            border-radius: 48px;
+            padding: 5px 24px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #b95f2a;
+        }
+        .score-board {
+            background: #f9efcf;
+            border-radius: 48px;
+            padding: 6px 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #a5632e;
+        }
+        .global-msg {
+            background: #fff7e0;
+            border-radius: 32px;
+            padding: 12px;
+            text-align: center;
+            margin: 10px 0 20px;
+            font-weight: bold;
+            color: #d87c2c;
+        }
+
+        /* 题目列表 */
+        .questions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin: 20px 0 30px;
+        }
+        .question-item {
+            background: #ffffffdb;
+            border-radius: 48px;
+            padding: 18px 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+            border: 1px solid #ffe0b8;
+        }
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #6a4c2c;
+            margin-bottom: 12px;
+            background: #fff2e2;
+            display: inline-block;
+            padding: 5px 18px;
+            border-radius: 36px;
+        }
+        .visual-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+            background: #fef5ea;
+            padding: 10px 16px;
+            border-radius: 48px;
+        }
+        .count-badge {
+            background: #ffe2bf;
+            border-radius: 40px;
+            padding: 6px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+        }
+        .answer-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .drop-slot {
+            background: #fff3e6;
+            border: 3px dashed #f5a96b;
+            border-radius: 48px;
+            padding: 8px 24px;
+            min-width: 80px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #c56e2c;
+            transition: 0.1s;
+        }
+        .drop-slot.filled {
+            background: #d4e6c3;
+            border: 3px solid #79a33b;
+            color: #2e6b0f;
+            cursor: default;
+        }
+        .unit-text {
+            font-size: 1.1rem;
+            color: #a06939;
+            font-weight: bold;
+        }
+
+        /* 拖拽卡片区 */
+        .drag-panel {
+            background: #fff9f0;
+            border-radius: 48px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .cards-title {
+            font-size: 1.2rem;
+            margin-bottom: 18px;
+            color: #c5793b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .cards-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+        }
+        .drag-card {
+            background: #ffe5c4;
+            border-radius: 48px;
+            width: 85px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #a5551c;
+            box-shadow: 0 8px 0 #c1915e;
+            cursor: grab;
+            touch-action: none;
+            transition: 0.05s linear;
+        }
+        .drag-card:active {
+            cursor: grabbing;
+        }
+        .drag-card.disabled-card {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            display: none;
+        }
+        .reset-btn {
+            background: #ffcf91;
+            border: none;
+            font-size: 1.2rem;
+            padding: 10px 28px;
+            border-radius: 48px;
+            font-weight: bold;
+            color: #6b3f15;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .reset-btn:active {
+            transform: scale(0.96);
+        }
+        .feedback {
+            margin-top: 14px;
+            font-size: 1rem;
+            min-height: 48px;
+            font-weight: bold;
+            text-align: center;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #c0a072;
+            margin-top: 18px;
+        }
+    </style>
+</head>
+<body>
+<div class="course-container">
+    <div class="split-layout">
+        <!-- 左侧知识点区 -->
+        <div class="knowledge-area">
+            <div class="badge">✨ 求一个数是另一个数的几倍</div>
+            <div class="rule-card">
+                <div style="font-size:1.3rem; font-weight:bold;">📖 重要公式</div>
+                <div class="formula">倍数 = 大数 ÷ 小数</div>
+                <div style="margin: 12px 0;">求一个数是另一个数的几倍，用<strong>除法</strong>计算！</div>
+                <div class="example-box">
+                    🌰 例子：<br>
+                    有12个苹果，4个梨。苹果是梨的几倍？<br>
+                    ➕ 12 ÷ 4 = 3<br>
+                    🎯 答：苹果是梨的<strong>3倍</strong>。
+                </div>
+                <div class="tip">
+                    💡 小秘诀：<br>
+                    “是”字前面是大数，“是”字后面是小数，<br>
+                    大数 ÷ 小数 = 倍数，倍数后面没有单位！
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧游戏区：拖拽配对 -->
+        <div class="game-area">
+            <div class="game-header">
+                <div class="game-title">🐼 倍数小英雄 · 拖拽配对</div>
+                <div class="score-board">🏆 得分 <span id="scoreValue">0</span> / <span id="totalCount">3</span></div>
+            </div>
+            <div class="global-msg" id="globalMsg">
+                🌟 观察两种物品的数量，把正确的倍数卡片拖到【？】位置！
+            </div>
+
+            <!-- 题目容器 -->
+            <div id="questionsContainer" class="questions-list"></div>
+
+            <!-- 可拖拽数字卡片 -->
+            <div class="drag-panel">
+                <div class="cards-title">🎴 数字卡片（拖到问号框）</div>
+                <div id="cardsContainer" class="cards-wrapper"></div>
+                <button id="resetGameBtn" class="reset-btn">🔄 新的一局 / 重置</button>
+                <div id="feedbackMsg" class="feedback">✨ 按住数字卡片，拖到虚线框里配对～</div>
+            </div>
+            <footer>⭐ 求倍数：大数 ÷ 小数 = 倍数，记得用除法哟！</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----- 题目数据 (求一个数是另一个数的几倍) -----
+    const questionsData = [
+        {
+            id: 0,
+            title: "🐱 小猫钓鱼",
+            bigName: "小鱼",
+            smallName: "虾",
+            bigCount: 15,
+            smallCount: 3,
+            bigEmoji: "🐟",
+            smallEmoji: "🦐",
+            expectedMultiple: 5,   // 15 ÷ 3 = 5
+            unit: "倍"
+        },
+        {
+            id: 1,
+            title: "🐰 胡萝卜派对",
+            bigName: "胡萝卜",
+            smallName: "蘑菇",
+            bigCount: 24,
+            smallCount: 4,
+            bigEmoji: "🥕",
+            smallEmoji: "🍄",
+            expectedMultiple: 6,   // 24 ÷ 4 = 6
+            unit: "倍"
+        },
+        {
+            id: 2,
+            title: "🐝 花朵采蜜",
+            bigName: "红花朵",
+            smallName: "黄花朵",
+            bigCount: 18,
+            smallCount: 6,
+            bigEmoji: "🌹",
+            smallEmoji: "🌼",
+            expectedMultiple: 3,   // 18 ÷ 6 = 3
+            unit: "倍"
+        }
+    ];
+    const TOTAL_QS = questionsData.length;
+    document.getElementById('totalCount').innerText = TOTAL_QS;
+
+    // 游戏状态
+    let correctCount = 0;
+    let questionCompleted = [false, false, false];
+    let cardElements = [];
+    let dropZones = [];
+
+    // 拖拽相关变量
+    let activeDragCard = null;
+    let cloneCard = null;
+    let startX = 0, startY = 0;
+    let isDragging = false;
+    let dragValue = null;
+
+    // DOM 元素
+    const questionsContainer = document.getElementById('questionsContainer');
+    const cardsContainer = document.getElementById('cardsContainer');
+    const scoreSpan = document.getElementById('scoreValue');
+    const globalMsgDiv = document.getElementById('globalMsg');
+    const feedbackDiv = document.getElementById('feedbackMsg');
+    const resetBtn = document.getElementById('resetGameBtn');
+
+    // 更新得分UI
+    function updateScoreUI() {
+        scoreSpan.innerText = correctCount;
+        if (correctCount === TOTAL_QS) {
+            globalMsgDiv.innerHTML = "🎉🎉 完美！倍数小英雄！你已经完全掌握“求一个数是另一个数的几倍” 🎉🎉";
+            globalMsgDiv.style.background = "#cae3b5";
+        } else {
+            globalMsgDiv.innerHTML = "🌟 观察两种物品的数量，把正确的倍数卡片拖到【？】位置！";
+            globalMsgDiv.style.background = "#fff7e0";
+        }
+    }
+
+    // 显示反馈消息
+    function showFeedback(msg, isError = false) {
+        feedbackDiv.innerHTML = msg;
+        feedbackDiv.style.color = isError ? "#d9534f" : "#3c8b2f";
+        setTimeout(() => {
+            if (feedbackDiv.innerHTML === msg) {
+                feedbackDiv.innerHTML = "✨ 继续拖动数字卡片，放到问号框里～ ✨";
+                feedbackDiv.style.color = "#ad6b38";
+            }
+        }, 1400);
+    }
+
+    // 正确填充题目
+    function fillQuestion(qid, cardValue) {
+        if (questionCompleted[qid]) return false;
+        const q = questionsData[qid];
+        if (cardValue !== q.expectedMultiple) {
+            showFeedback(`❌ 不对哦！ ${q.bigEmoji} ${q.bigCount}个，${q.smallEmoji} ${q.smallCount}个，${q.bigName}是${q.smallName}的几倍？算式：${q.bigCount} ÷ ${q.smallCount} = ${q.expectedMultiple}倍，再试试～`, true);
+            return false;
+        }
+        // 正确
+        questionCompleted[qid] = true;
+        correctCount++;
+        updateScoreUI();
+
+        // 更新放置区样式
+        const slot = dropZones[qid];
+        if (slot) {
+            slot.innerText = q.expectedMultiple;
+            slot.classList.add('filled');
+            slot.classList.remove('drop-slot');
+            slot.style.border = "3px solid #79a33b";
+            slot.style.background = "#d4e6c3";
+        }
+
+        // 移除匹配的卡片（找到对应数值且未被禁用的卡片）
+        for (let i = 0; i < cardElements.length; i++) {
+            const card = cardElements[i];
+            if (card && !card.classList.contains('disabled-card') && parseInt(card.getAttribute('data-value')) === cardValue) {
+                card.classList.add('disabled-card');
+                card.style.pointerEvents = 'none';
+                card.removeEventListener('pointerdown', onPointerDown);
+                break;
+            }
+        }
+        showFeedback(`✅ 正确！ ${q.bigCount} ÷ ${q.smallCount} = ${q.expectedMultiple}，${q.bigName}是${q.smallName}的${q.expectedMultiple}倍！`, false);
+        return true;
+    }
+
+    // 渲染所有题目 (重置时调用)
+    function renderQuestions() {
+        questionsContainer.innerHTML = '';
+        dropZones = [];
+        for (let i = 0; i < questionsData.length; i++) {
+            const q = questionsData[i];
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-item';
+            qDiv.setAttribute('data-qid', i);
+
+            const titleSpan = document.createElement('div');
+            titleSpan.className = 'question-text';
+            titleSpan.innerText = q.title;
+
+            // 可视化区域：显示两种物品及数量
+            const visualDiv = document.createElement('div');
+            visualDiv.className = 'visual-group';
+            const bigPart = document.createElement('div');
+            bigPart.className = 'count-badge';
+            bigPart.innerHTML = `<span style="font-size:1.8rem;">${q.bigEmoji}</span> <span>× ${q.bigCount}</span> <span>${q.bigName}</span>`;
+            const vsSpan = document.createElement('span');
+            vsSpan.innerText = '是';
+            vsSpan.style.fontWeight = 'bold';
+            vsSpan.style.fontSize = '1.1rem';
+            const smallPart = document.createElement('div');
+            smallPart.className = 'count-badge';
+            smallPart.innerHTML = `<span style="font-size:1.8rem;">${q.smallEmoji}</span> <span>× ${q.smallCount}</span> <span>${q.smallName}</span>`;
+            const eqSpan = document.createElement('span');
+            eqSpan.innerText = '的几倍？';
+            eqSpan.style.fontWeight = 'bold';
+            eqSpan.style.background = '#ffe0b5';
+            eqSpan.style.padding = '4px 12px';
+            eqSpan.style.borderRadius = '40px';
+            visualDiv.appendChild(bigPart);
+            visualDiv.appendChild(vsSpan);
+            visualDiv.appendChild(smallPart);
+            visualDiv.appendChild(eqSpan);
+
+            // 答案区
+            const answerDiv = document.createElement('div');
+            answerDiv.className = 'answer-area';
+            const dropSlot = document.createElement('div');
+            dropSlot.className = 'drop-slot';
+            dropSlot.innerText = '?';
+            dropSlot.setAttribute('data-qid', i);
+            dropSlot.setAttribute('data-expected', q.expectedMultiple);
+            const unitSpan = document.createElement('span');
+            unitSpan.className = 'unit-text';
+            unitSpan.innerText = q.unit;
+
+            answerDiv.appendChild(dropSlot);
+            answerDiv.appendChild(unitSpan);
+            if (questionCompleted[i]) {
+                dropSlot.innerText = q.expectedMultiple;
+                dropSlot.classList.add('filled');
+                dropSlot.classList.remove('drop-slot');
+                dropSlot.style.border = "3px solid #79a33b";
+                dropSlot.style.background = "#d4e6c3";
+            }
+            qDiv.appendChild(titleSpan);
+            qDiv.appendChild(visualDiv);
+            qDiv.appendChild(answerDiv);
+            questionsContainer.appendChild(qDiv);
+            dropZones.push(dropSlot);
+        }
+    }
+
+    // 生成数字卡片 (正确倍数 + 干扰项)
+    function generateCards() {
+        cardsContainer.innerHTML = '';
+        cardElements = [];
+        const correctValues = questionsData.map(q => q.expectedMultiple); // [5,6,3]
+        let distractors = [2, 4, 7, 8, 9];
+        let allNumbers = [...correctValues];
+        for (let d of distractors) {
+            if (!allNumbers.includes(d)) allNumbers.push(d);
+        }
+        // 增加一个10作为挑战
+        if (!allNumbers.includes(10)) allNumbers.push(10);
+        // 打乱顺序
+        for (let i = allNumbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allNumbers[i], allNumbers[j]] = [allNumbers[j], allNumbers[i]];
+        }
+        // 创建卡片
+        allNumbers.forEach(num => {
+            const card = document.createElement('div');
+            card.className = 'drag-card';
+            card.innerText = num;
+            card.setAttribute('data-value', num);
+            card.setAttribute('draggable', 'false');
+            card.addEventListener('pointerdown', onPointerDown);
+            cardsContainer.appendChild(card);
+            cardElements.push(card);
+        });
+    }
+
+    // ---------- 自定义拖拽逻辑 (支持触摸/鼠标) ----------
+    function onPointerDown(e) {
+        const card = e.currentTarget;
+        if (card.classList.contains('disabled-card')) return;
+        e.preventDefault();
+        activeDragCard = card;
+        dragValue = parseInt(card.getAttribute('data-value'));
+
+        const rect = card.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+
+        // 创建克隆体跟随
+        cloneCard = card.cloneNode(true);
+        cloneCard.style.position = 'fixed';
+        cloneCard.style.top = `${rect.top}px`;
+        cloneCard.style.left = `${rect.left}px`;
+        cloneCard.style.width = `${rect.width}px`;
+        cloneCard.style.height = `${rect.height}px`;
+        cloneCard.style.margin = '0';
+        cloneCard.style.opacity = '0.85';
+        cloneCard.style.zIndex = '9999';
+        cloneCard.style.pointerEvents = 'none';
+        cloneCard.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
+        document.body.appendChild(cloneCard);
+
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+        isDragging = true;
+        activeDragCard.style.opacity = '0.3';
+    }
+
+    function onPointerMove(e) {
+        if (!isDragging || !cloneCard) return;
+        e.preventDefault();
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const currentTop = parseFloat(cloneCard.style.top);
+        const currentLeft = parseFloat(cloneCard.style.left);
+        cloneCard.style.top = `${currentTop + dy}px`;
+        cloneCard.style.left = `${currentLeft + dx}px`;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        // 高亮放置区
+        const elemUnder = document.elementsFromPoint(e.clientX, e.clientY);
+        let hoverSlot = null;
+        for (let el of elemUnder) {
+            if (el.classList && el.classList.contains('drop-slot') && !el.classList.contains('filled')) {
+                hoverSlot = el;
+                break;
+            }
+            if (el.parentElement && el.parentElement.classList && el.parentElement.classList.contains('drop-slot') && !el.parentElement.classList.contains('filled')) {
+                hoverSlot = el.parentElement;
+                break;
+            }
+        }
+        dropZones.forEach(zone => {
+            if (zone) zone.style.background = '';
+        });
+        if (hoverSlot) {
+            hoverSlot.style.background = '#ffe1b3';
+        }
+    }
+
+    function onPointerUp(e) {
+        if (!isDragging) {
+            cleanDrag();
+            return;
+        }
+        e.preventDefault();
+        const elementsUnder = document.elementsFromPoint(e.clientX, e.clientY);
+        let targetSlot = null;
+        for (let el of elementsUnder) {
+            if (el.classList && el.classList.contains('drop-slot') && !el.classList.contains('filled')) {
+                targetSlot = el;
+                break;
+            }
+            if (el.parentElement && el.parentElement.classList && el.parentElement.classList.contains('drop-slot') && !el.parentElement.classList.contains('filled')) {
+                targetSlot = el.parentElement;
+                break;
+            }
+        }
+
+        let success = false;
+        if (targetSlot) {
+            const qidAttr = targetSlot.getAttribute('data-qid');
+            if (qidAttr !== null) {
+                const qid = parseInt(qidAttr);
+                if (!questionCompleted[qid]) {
+                    success = fillQuestion(qid, dragValue);
+                } else {
+                    showFeedback("🎯 这道题已经答对了！不能重复填哦～", true);
+                }
+            } else {
+                showFeedback("🤔 出错了，请刷新重试", true);
+            }
+        } else {
+            showFeedback("🐣 要把卡片拖到题目的【？】虚线框里！", true);
+        }
+
+        cleanDrag();
+        if (!success && activeDragCard && !activeDragCard.classList.contains('disabled-card')) {
+            activeDragCard.style.opacity = '1';
+        }
+        dropZones.forEach(zone => {
+            if (zone) zone.style.background = '';
+        });
+    }
+
+    function cleanDrag() {
+        if (cloneCard && cloneCard.parentNode) cloneCard.parentNode.removeChild(cloneCard);
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        isDragging = false;
+        cloneCard = null;
+        if (activeDragCard && !activeDragCard.classList.contains('disabled-card')) {
+            activeDragCard.style.opacity = '1';
+        }
+        activeDragCard = null;
+        dragValue = null;
+    }
+
+    // 重置游戏
+    function resetGame() {
+        correctCount = 0;
+        questionCompleted = [false, false, false];
+        updateScoreUI();
+        if (cloneCard) cleanDrag();
+        renderQuestions();
+        generateCards();
+        showFeedback("✨ 游戏已重置！重新挑战倍数配对 ✨", false);
+        globalMsgDiv.innerHTML = "🌟 观察两种物品的数量，把正确的倍数卡片拖到【？】位置！";
+        globalMsgDiv.style.background = "#fff7e0";
+    }
+
+    // 初始化
+    function init() {
+        renderQuestions();
+        generateCards();
+        correctCount = 0;
+        questionCompleted = [false, false, false];
+        updateScoreUI();
+    }
+
+    // 防止移动端滚动干扰
+    document.body.addEventListener('touchmove', function(e) {
+        if (isDragging) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    window.addEventListener('dragstart', (e) => e.preventDefault());
+
+    resetBtn.addEventListener('click', () => {
+        if (isDragging) cleanDrag();
+        resetGame();
+    });
+
+    init();
+</script>
+</body>
+</html>
